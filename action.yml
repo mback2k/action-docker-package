@@ -18,6 +18,10 @@ inputs:
     description: "Build arguments"
     required: false
     default: ""
+  image_name:
+    description: "Image name"
+    required: false
+    default: ""
 
 runs:
   using: "composite"
@@ -31,7 +35,12 @@ runs:
     - uses: docker/metadata-action@v3
       id: meta
       with:
-        images: ${{ inputs.registry }}/${{ github.repository }}
+        images: ${{ inputs.registry }}/${{ github.repository }}/${{ inputs.image_name }}
+        tags: |
+          type=raw,value=${{ steps.repo.outputs.description }}
+          type=raw,value=latest
+          type=ref,event=branch
+          type=ref,event=tag
 
     - uses: docker/login-action@v1
       with:
@@ -44,6 +53,6 @@ runs:
         context: .
         push: true
         build-args: ${{ inputs.build_args }}
-        tags: ${{ join(steps.meta.outputs.tags, ',') }},${{ inputs.registry }}/${{ github.repository }}:${{ steps.repo.outputs.description }}
+        tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 ...
