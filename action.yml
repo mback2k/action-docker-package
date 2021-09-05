@@ -35,7 +35,7 @@ runs:
     - uses: docker/metadata-action@v3
       id: meta
       with:
-        images: ${{ inputs.registry }}/${{ github.repository }}/${{ inputs.image_name }}
+        images: ${{ join(fromJSON(format('["{0}","{1}","{2}"]', inputs.registry, github.repository, inputs.image_name)), '/') }}
         tags: |
           type=raw,value=${{ steps.repo.outputs.description }}
           type=raw,value=latest
