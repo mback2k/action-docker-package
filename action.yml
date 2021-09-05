@@ -29,13 +29,17 @@ runs:
     - uses: docker/setup-buildx-action@v1
 
     - shell: bash
+      id: name
+      run: echo "::set-output name=image::${{ inputs.registry }}/${{ github.repository }}/${{ inputs.image_name }}" | sed 's:/*$::'
+
+    - shell: bash
       id: repo
       run: echo "::set-output name=description::$(git describe --always --tags)"
 
     - uses: docker/metadata-action@v3
       id: meta
       with:
-        images: ${{ join(fromJSON(format('["{0}","{1}","{2}"]', inputs.registry, github.repository, inputs.image_name)), '/') }}
+        images: ${{ steps.name.outputs.image }}
         tags: |
           type=raw,value=${{ steps.repo.outputs.description }}
           type=raw,value=latest
